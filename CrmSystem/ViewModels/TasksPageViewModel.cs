@@ -138,6 +138,21 @@ namespace CrmSystem.ViewModels
             LoadTasksFromDatabase();
         }
 
+        private DateTime _selectedCalendarDate = DateTime.Today;
+        public DateTime SelectedCalendarDate
+        {
+            get => _selectedCalendarDate;
+            set
+            {
+                if (_selectedCalendarDate != value)
+                {
+                    _selectedCalendarDate = value;
+                    OnPropertyChanged(nameof(SelectedCalendarDate));
+                }
+            }
+        }
+
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

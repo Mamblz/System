@@ -204,7 +204,9 @@
                 <Border Background="White" Padding="20" CornerRadius="15" Effect="{StaticResource ShadowEffect}" Margin="0 0 0 20">
                     <StackPanel>
                         <TextBlock Text="Календарь задач" Style="{StaticResource SectionTitle}"/>
-                        <Calendar SelectedDate="{Binding SelectedCalendarDate}" DisplayDate="{Binding SelectedCalendarDate}" />
+                        <Calendar 
+            SelectedDate="{Binding SelectedCalendarDate}" 
+            DisplayDate="{Binding SelectedCalendarDate}" />
                     </StackPanel>
                 </Border>
             </StackPanel>
