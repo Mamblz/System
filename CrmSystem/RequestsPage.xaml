@@ -1,0 +1,211 @@
+﻿<UserControl x:Class="CrmSystem.Views.RequestsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CrmSystem.Views"
+             Background="#f9fafb"
+             MinWidth="950" MinHeight="800"
+             Padding="30">
+
+    <UserControl.Resources>
+        <DropShadowEffect x:Key="ShadowEffect" Color="#444" Direction="270" ShadowDepth="5" Opacity="0.15" BlurRadius="15"/>
+
+        <!-- Стиль кнопок, как на главной странице -->
+        <Style x:Key="MainButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#3B82F6" Offset="0"/>
+                        <GradientStop Color="#2563EB" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="0,0,15,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="MinWidth" Value="160"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="22"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#1E40AF" Offset="0"/>
+                                            <GradientStop Color="#1D4ED8" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#1E3A8A"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#94A3B8"/>
+                                <Setter Property="Foreground" Value="#CBD5E1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Остальные стили (SimpleLinkButtonStyle, WatermarkTextBox, ComboBox) оставил без изменений -->
+        <Style x:Key="SimpleLinkButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="#2563EB"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="6,2"/>
+            <Setter Property="Margin" Value="0,0,15,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="#1D4ED8"/>
+                                <Setter Property="TextBlock.TextDecorations" Value="Underline"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Foreground" Value="#1E40AF"/>
+                                <Setter Property="TextBlock.TextDecorations" Value="None"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#94A3B8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="WatermarkTextBox" TargetType="TextBox">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="10"/>
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="4,0"/>
+                            <TextBlock Text="Поиск по заявкам"
+                                       Foreground="#9CA3AF"
+                                       Margin="12,0,0,0"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False"
+                                       x:Name="Watermark"
+                                       Visibility="Collapsed"
+                                       FontStyle="Italic"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Text" Value="">
+                                <Setter TargetName="Watermark" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Watermark" Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="MinWidth" Value="200"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Margin" Value="0,0,15,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header с кнопкой На главную -->
+        <DockPanel Grid.Row="0" Margin="0 0 0 30" LastChildFill="False" VerticalAlignment="Center">
+            <TextBlock Text="Работа с заявками" FontSize="30" FontWeight="Bold" Foreground="#111827" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Button Content="На главную" Style="{StaticResource MainButtonStyle}" Click="MainPage_Click"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Main Content -->
+        <Border Background="White" Padding="25" CornerRadius="20" Effect="{StaticResource ShadowEffect}" Grid.Row="1">
+            <StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0 0 0 25" HorizontalAlignment="Left">
+                    <Button Content="Создать заявку" Style="{StaticResource MainButtonStyle}" Click="CreateRequest_Click"/>
+                    <Button Content="Редактировать заявку" Style="{StaticResource MainButtonStyle}" Width="170" Click="EditRequest_Click"/>
+                    <Button Content="Удалить заявку" Style="{StaticResource MainButtonStyle}" Click="DeleteRequest_Click"/>
+
+                    <ComboBox Name="StatusFilterComboBox" VerticalAlignment="Center" SelectionChanged="StatusFilterComboBox_SelectionChanged" Margin="15,0,15,0">
+                        <ComboBoxItem Content="Все статусы" IsSelected="True"/>
+                        <ComboBoxItem Content="Новая"/>
+                        <ComboBoxItem Content="В процессе"/>
+                        <ComboBoxItem Content="В ожидании"/>
+                        <ComboBoxItem Content="Завершена"/>
+                        <ComboBoxItem Content="Отменена"/>
+                    </ComboBox>
+
+                    <TextBox Name="SearchTextBox" Width="350" VerticalContentAlignment="Center" Style="{StaticResource WatermarkTextBox}" TextChanged="SearchTextBox_TextChanged" />
+                </StackPanel>
+
+                <ListView Name="RequestsListView" MinHeight="540" 
+                          BorderThickness="0"
+                          Background="Transparent"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          >
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding Id}"/>
+                            <GridViewColumn Header="Заголовок" Width="220" DisplayMemberBinding="{Binding Title}"/>
+                            <GridViewColumn Header="Описание" Width="380" DisplayMemberBinding="{Binding Description}"/>
+                            <GridViewColumn Header="Статус" Width="130" DisplayMemberBinding="{Binding Status}"/>
+                            <GridViewColumn Header="Приоритет" Width="130" DisplayMemberBinding="{Binding Priority}"/>
+                            <GridViewColumn Header="Дата создания" Width="140" DisplayMemberBinding="{Binding CreatedAt, StringFormat={}{0:dd.MM.yyyy}}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

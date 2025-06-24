@@ -1,0 +1,11 @@
+﻿<Window x:Class="CrmSystem.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="CRMSystem" Height="900" Width="1200"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Background="#f0f2f5">
+    <Grid>
+        <ContentControl x:Name="MainContent"/>
+    </Grid>
+</Window>

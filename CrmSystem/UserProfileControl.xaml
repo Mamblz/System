@@ -1,0 +1,186 @@
+﻿<UserControl x:Class="CrmSystem.Views.UserProfileControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinWidth="600" MinHeight="580">
+
+	<UserControl.Resources>
+		<!-- GlassCard стиль для Border -->
+		<Style x:Key="GlassCard" TargetType="Border">
+			<Setter Property="CornerRadius" Value="20"/>
+			<Setter Property="Padding" Value="40"/>
+			<Setter Property="Background" Value="#F0F2F5"/>
+		</Style>
+
+		<!-- Modern TextBox стиль -->
+		<Style x:Key="ModernTextBox" TargetType="TextBox">
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="Margin" Value="0,12,0,12"/>
+			<Setter Property="Padding" Value="18,14"/>
+			<Setter Property="Background" Value="White"/>
+			<Setter Property="BorderBrush" Value="#CBD5E1"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="Foreground" Value="#0F172A"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="SnapsToDevicePixels" Value="True"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="TextBox">
+						<Border CornerRadius="14"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+							<ScrollViewer x:Name="PART_ContentHost"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsFocused" Value="True">
+								<Setter Property="BorderBrush" Value="#3B82F6"/>
+								<Setter Property="BorderThickness" Value="2"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<!-- Modern Button стиль -->
+		<Style x:Key="ModernButton" TargetType="Button">
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="Background" Value="#2563EB"/>
+			<Setter Property="Padding" Value="16"/>
+			<Setter Property="Margin" Value="0,14,0,0"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Height" Value="50"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border Background="{TemplateBinding Background}"
+                                CornerRadius="14">
+							<ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+						</Border>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<!-- Secondary Button стиль -->
+		<Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+			<Setter Property="Background" Value="#E2E8F0"/>
+			<Setter Property="Foreground" Value="#2563EB"/>
+		</Style>
+
+		<!-- Header TextBlock стиль -->
+		<Style x:Key="HeaderTextBlock" TargetType="TextBlock">
+			<Setter Property="FontSize" Value="32"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="Foreground" Value="#1E293B"/>
+			<Setter Property="HorizontalAlignment" Value="Center"/>
+			<Setter Property="Margin" Value="0,0,0,32"/>
+		</Style>
+
+		<!-- Label TextBlock стиль -->
+		<Style x:Key="LabelTextBlock" TargetType="TextBlock">
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="FontSize" Value="18"/>
+			<Setter Property="Foreground" Value="#334155"/>
+			<Setter Property="Margin" Value="0,12,0,6"/>
+		</Style>
+
+		<!-- Status TextBlock стиль -->
+		<Style x:Key="StatusTextBlock" TargetType="TextBlock">
+			<Setter Property="Foreground" Value="Green"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Margin" Value="0,0,0,24"/>
+			<Setter Property="HorizontalAlignment" Value="Center"/>
+		</Style>
+	</UserControl.Resources>
+
+	<Grid>
+		<Grid.Background>
+			<LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+				<GradientStop Color="#F1F5F9" Offset="0.0"/>
+				<GradientStop Color="#E2E8F0" Offset="1.0"/>
+			</LinearGradientBrush>
+		</Grid.Background>
+
+		<Border Style="{StaticResource GlassCard}"
+                Width="560"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center">
+
+			<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,0,20">
+				<StackPanel>
+
+					<TextBlock Text="Профиль пользователя" Style="{StaticResource HeaderTextBlock}"/>
+
+					<StackPanel HorizontalAlignment="Center" Margin="0,0,0,24">
+						<Image x:Name="AvatarImage" Width="120" Height="120" Stretch="UniformToFill"
+                               Margin="0,0,0,12" ClipToBounds="True" SnapsToDevicePixels="True"/>
+						<Button Content="Загрузить фото" Style="{StaticResource SecondaryButton}" Width="180" Height="36"
+                                Click="UploadAvatar_Click"/>
+					</StackPanel>
+
+					<TextBlock Text="Имя пользователя:" Style="{StaticResource LabelTextBlock}"/>
+					<TextBox x:Name="UserNameTextBox" Style="{StaticResource ModernTextBox}"/>
+
+					<TextBlock Text="Email:" Style="{StaticResource LabelTextBlock}"/>
+					<TextBox x:Name="EmailTextBox" Style="{StaticResource ModernTextBox}"/>
+
+					<TextBlock Text="Подтверждение Email:" Style="{StaticResource LabelTextBlock}"/>
+					<StackPanel Orientation="Horizontal" Margin="0,0,0,12" VerticalAlignment="Center" HorizontalAlignment="Left" >
+						<TextBlock x:Name="EmailStatusTextBlock" FontWeight="Bold" VerticalAlignment="Center"/>
+						<Button Content="Подтвердить email" Style="{StaticResource SecondaryButton}" Height="36" Margin="14,0,0,0"
+                                Click="ConfirmEmailButton_Click"/>
+						<Button Content="Отправить повторно" Style="{StaticResource SecondaryButton}" Height="36" Margin="14,0,0,0"
+                                Click="ResendConfirmationEmail_Click"/>
+					</StackPanel>
+
+					<TextBlock Text="Телефон:" Style="{StaticResource LabelTextBlock}"/>
+					<TextBox x:Name="PhoneTextBox" Style="{StaticResource ModernTextBox}"/>
+
+					<TextBlock Text="Должность:" Style="{StaticResource LabelTextBlock}"/>
+					<TextBox x:Name="PositionTextBox" Style="{StaticResource ModernTextBox}"/>
+
+					<TextBlock Text="Отдел:" Style="{StaticResource LabelTextBlock}"/>
+					<TextBox x:Name="DepartmentTextBox" Style="{StaticResource ModernTextBox}"/>
+
+					<TextBlock Text="Дата регистрации:" Style="{StaticResource LabelTextBlock}"/>
+					<TextBlock x:Name="RegisteredAtTextBlock" Margin="0,0,0,16"/>
+
+					<TextBlock Text="Последний вход:" Style="{StaticResource LabelTextBlock}"/>
+					<TextBlock x:Name="LastLoginTextBlock" Margin="0,0,0,24"/>
+
+					<Grid Margin="0,16,0,32" HorizontalAlignment="Center" Width="400">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="20" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<Button Grid.Column="0" Content="Сменить пароль" Height="50" Style="{StaticResource SecondaryButton}"
+                                Cursor="Hand" Click="ChangePassword_Click"/>
+						<Button Grid.Column="2" Content="Сменить email" Height="50" Style="{StaticResource SecondaryButton}"
+                                Cursor="Hand" Click="ChangeEmail_Click"/>
+					</Grid>
+
+					<TextBlock x:Name="StatusTextBlock" Style="{StaticResource StatusTextBlock}" Visibility="Collapsed"
+                               Text="Изменения сохранены!"/>
+
+					<Grid HorizontalAlignment="Center" Width="350">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="20" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<Button Grid.Column="0" Content="Сохранить" Height="50" Style="{StaticResource ModernButton}"
+                                Cursor="Hand" Click="SaveButton_Click"/>
+						<Button Grid.Column="2" Content="Назад" Height="50" Style="{StaticResource SecondaryButton}"
+                                Cursor="Hand" Click="BackButton_Click"/>
+					</Grid>
+				</StackPanel>
+			</ScrollViewer>
+		</Border>
+	</Grid>
+</UserControl>
