@@ -29,7 +29,10 @@ namespace CrmSystem.Views
             _currentUser = user ?? throw new ArgumentNullException(nameof(user));
             if (dbContext == null) throw new ArgumentNullException(nameof(dbContext));
 
-            _viewModel = new MainViewModel(() => new ApplicationDbContext(), Application.Current.Dispatcher);
+            // Используем обертку DispatcherWrapper, реализующую IDispatcher
+            var dispatcherWrapper = new DispatcherWrapper(Application.Current.Dispatcher);
+
+            _viewModel = new MainViewModel(() => new ApplicationDbContext(), dispatcherWrapper);
             this.DataContext = _viewModel;
 
             GreetingText.Text = $"Привет, {_currentUser.Username}!";
@@ -84,6 +87,5 @@ namespace CrmSystem.Views
         {
             TasksRequested?.Invoke();
         }
-
     }
 }

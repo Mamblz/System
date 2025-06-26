@@ -8,12 +8,12 @@ namespace CrmSystem.ViewModels
 {
     public class RegisterViewModel : INotifyPropertyChanged
     {
-        private readonly AuthService _authService;
-
-        public RegisterViewModel()
+        private readonly IAuthService _authService;
+        public RegisterViewModel(IAuthService authService)
         {
-            _authService = new AuthService();
+            _authService = authService;
         }
+        public RegisterViewModel() : this(new AuthService()) { }
 
         private string _username;
         public string Username

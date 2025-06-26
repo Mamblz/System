@@ -5,13 +5,13 @@ namespace CrmSystem.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<Client> Clients { get; set; }
-        public DbSet<Interaction> Interactions { get; set; }
-        public DbSet<Ticket> Tickets { get; set; }
-        public DbSet<Deal> Deals { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Client> Clients { get; set; }
+        public virtual DbSet<Interaction> Interactions { get; set; }
+        public virtual DbSet<Ticket> Tickets { get; set; }
+        public virtual DbSet<Deal> Deals { get; set; }
 
-        public DbSet<TasksItems> TaskItems { get; set; }
+        public virtual DbSet<TasksItems> TaskItems { get; set; }
 
         public ApplicationDbContext() { }
 

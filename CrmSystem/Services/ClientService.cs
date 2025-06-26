@@ -1,22 +1,30 @@
 ﻿using CrmSystem.Data;
 using CrmSystem.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace CrmSystem.Services
 {
-    public class ClientService
+    public interface IClientService
+    {
+        void AddClient(Client client);
+        Client GetClient(int id);
+        List<Client> GetAllClients();
+        void UpdateClient(Client updatedClient);
+        void DeleteClient(int id);
+        void AddInteraction(int clientId, Interaction interaction);
+        List<Interaction> GetClientInteractions(int clientId);
+        List<Client> SearchClients(string searchTerm);
+    }
+
+    public class ClientService : IClientService
     {
         private readonly ApplicationDbContext _context;
 
         public ClientService(ApplicationDbContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        // Добавление нового клиента
         public void AddClient(Client client)
         {
             if (client == null)
@@ -27,15 +35,16 @@ namespace CrmSystem.Services
             _context.SaveChanges();
         }
 
-        // Получение клиента по ID
         public Client GetClient(int id)
         {
+            if (id <= 0)
+                throw new ArgumentOutOfRangeException(nameof(id), "Id должен быть больше 0");
+
             return _context.Clients
-                .Include(c => c.Interactions) // Подгружаем историю взаимодействий
+                .Include(c => c.Interactions)
                 .FirstOrDefault(c => c.Id == id);
         }
 
-        // Получение всех клиентов
         public List<Client> GetAllClients()
         {
             return _context.Clients
@@ -43,14 +52,15 @@ namespace CrmSystem.Services
                 .ToList();
         }
 
-        // Обновление данных клиента
         public void UpdateClient(Client updatedClient)
         {
+            if (updatedClient == null)
+                throw new ArgumentNullException(nameof(updatedClient));
+
             var existingClient = _context.Clients.Find(updatedClient.Id);
             if (existingClient == null)
-                throw new ArgumentException("Client not found");
+                throw new ArgumentException("Client not found", nameof(updatedClient));
 
-            // Обновляем поля
             existingClient.Name = updatedClient.Name;
             existingClient.Email = updatedClient.Email;
             existingClient.Phone = updatedClient.Phone;
@@ -60,9 +70,11 @@ namespace CrmSystem.Services
             _context.SaveChanges();
         }
 
-        // Удаление клиента
         public void DeleteClient(int id)
         {
+            if (id <= 0)
+                throw new ArgumentOutOfRangeException(nameof(id), "Id должен быть больше 0");
+
             var client = _context.Clients.Find(id);
             if (client != null)
             {
@@ -71,12 +83,16 @@ namespace CrmSystem.Services
             }
         }
 
-        // Добавление взаимодействия с клиентом
         public void AddInteraction(int clientId, Interaction interaction)
         {
+            if (interaction == null)
+                throw new ArgumentNullException(nameof(interaction));
+            if (clientId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(clientId), "Id должен быть больше 0");
+
             var client = _context.Clients.Find(clientId);
             if (client == null)
-                throw new ArgumentException("Client not found");
+                throw new ArgumentException("Client not found", nameof(clientId));
 
             interaction.Date = DateTime.UtcNow;
             interaction.ClientId = clientId;
@@ -84,21 +100,27 @@ namespace CrmSystem.Services
             _context.SaveChanges();
         }
 
-        // Получение истории взаимодействий клиента
         public List<Interaction> GetClientInteractions(int clientId)
         {
+            if (clientId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(clientId), "Id должен быть больше 0");
+
             return _context.Interactions
                 .Where(i => i.ClientId == clientId)
                 .OrderByDescending(i => i.Date)
                 .ToList();
         }
 
-        // Поиск клиентов по имени или компании
         public List<Client> SearchClients(string searchTerm)
         {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return new List<Client>();
+
+            string term = searchTerm.Trim();
+
             return _context.Clients
-                .Where(c => c.Name.Contains(searchTerm) ||
-                            c.Company.Contains(searchTerm))
+                .Where(c => (!string.IsNullOrEmpty(c.Name) && c.Name.Contains(term)) ||
+                            (!string.IsNullOrEmpty(c.Company) && c.Company.Contains(term)))
                 .ToList();
         }
     }

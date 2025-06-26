@@ -1,6 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Threading;
 using CrmSystem.Data;
 using CrmSystem.Models;
@@ -13,7 +15,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     private readonly Func<ApplicationDbContext> _dbContextFactory;
     private readonly Timer _timer;
-    private readonly Dispatcher _dispatcher;
+    private readonly IDispatcher _dispatcher;
 
     private int _activeClientsCount;
     private int _openProjectsCount;
@@ -46,7 +48,6 @@ public class MainViewModel : INotifyPropertyChanged
         private set => SetProperty(ref _serverTime, value);
     }
 
-
     public string DealSearchText
     {
         get => _dealSearchText;
@@ -54,7 +55,6 @@ public class MainViewModel : INotifyPropertyChanged
         {
             if (SetProperty(ref _dealSearchText, value))
             {
-                // При изменении текста поиска уведомляем об изменении отфильтрованной коллекции
                 OnPropertyChanged(nameof(FilteredProjects));
             }
         }
@@ -79,7 +79,7 @@ public class MainViewModel : INotifyPropertyChanged
     public ObservableCollection<TodoItemViewModel> TodoItems { get; }
     public ObservableCollection<TaskStatisticViewModel> TaskStatistics { get; }
 
-    public MainViewModel(Func<ApplicationDbContext> dbContextFactory, Dispatcher dispatcher)
+    public MainViewModel(Func<ApplicationDbContext> dbContextFactory, IDispatcher dispatcher)
     {
         _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
         _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
@@ -120,7 +120,7 @@ public class MainViewModel : INotifyPropertyChanged
 
         var recentDeals = await dbContext.Deals
             .OrderByDescending(d => d.Id)
-            .Take(50) // лучше больше для поиска
+            .Take(50)
             .ToListAsync();
 
         var activeClientsCount = await dbContext.Clients.CountAsync();
@@ -172,7 +172,6 @@ public class MainViewModel : INotifyPropertyChanged
             TaskStatistics.Add(new TaskStatisticViewModel { Name = "Встречи", Progress = 45 });
             TaskStatistics.Add(new TaskStatisticViewModel { Name = "Email-рассылки", Progress = 90 });
 
-            // После загрузки данных обновляем фильтр
             OnPropertyChanged(nameof(FilteredProjects));
         });
     }
@@ -249,4 +248,24 @@ public class TaskStatisticViewModel
 {
     public string Name { get; set; }
     public double Progress { get; set; }
+}
+
+public interface IDispatcher
+{
+    void Invoke(Action action);
+}
+
+public class DispatcherWrapper : IDispatcher
+{
+    private readonly Dispatcher _dispatcher;
+
+    public DispatcherWrapper(Dispatcher dispatcher)
+    {
+        _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
+    }
+
+    public void Invoke(Action action)
+    {
+        _dispatcher.Invoke(action);
+    }
 }

@@ -1,37 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using CrmSystem.Data;
+using CrmSystem.ViewModels;
 using CrmSystem.Models;
 
 namespace CrmSystem.Views
 {
     public partial class RequestsPage : UserControl
     {
-        private readonly ApplicationDbContext _dbContext;
-        private ObservableCollection<Ticket> Tickets { get; set; }
-        private ObservableCollection<Ticket> FilteredTickets { get; set; }
-
+        private readonly RequestsPageViewModel _viewModel;
         public event Action HomeRequested;
 
         public RequestsPage(ApplicationDbContext dbContext)
         {
             InitializeComponent();
 
-            _dbContext = dbContext;
+            _viewModel = new RequestsPageViewModel(dbContext);
+            DataContext = _viewModel;
 
-            // Инициализируем коллекции
-            Tickets = new ObservableCollection<Ticket>();
-            FilteredTickets = new ObservableCollection<Ticket>();
-
-            // Привязываем FilteredTickets к ListView
-            RequestsListView.ItemsSource = FilteredTickets;
-
-            // Загружаем данные из базы
-            LoadTicketsFromDb();
+            RequestsListView.ItemsSource = _viewModel.FilteredTickets;
+            _viewModel.LoadTicketsFromDb();
         }
 
         private void MainPage_Click(object sender, RoutedEventArgs e)
@@ -39,57 +27,59 @@ namespace CrmSystem.Views
             HomeRequested?.Invoke();
         }
 
-        private readonly Dictionary<string, TicketStatus?> _statusMap = new Dictionary<string, TicketStatus?>()
+        private void CreateRequest_Click(object sender, RoutedEventArgs e)
         {
-            { "Все статусы", null },
-            { "Новая", TicketStatus.Новый },
-            { "В процессе", TicketStatus.ВПроцессе },
-            { "В ожидании", TicketStatus.ВОжидании },
-            { "Завершена", TicketStatus.Завершён },
-            { "Отменена", TicketStatus.Отменён }
-        };
-
-        private void DeleteRequest_Click(object sender, RoutedEventArgs e)
-        {
-            if (RequestsListView.SelectedItem is Ticket selectedTicket)
+            var newRequestWindow = new NewRequestWindow(_viewModel.DbContext)
             {
-                var result = MessageBox.Show($"Вы действительно хотите удалить заявку '{selectedTicket.Title}'?", "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (result == MessageBoxResult.Yes)
+                Owner = Window.GetWindow(this)
+            };
+
+            if (newRequestWindow.ShowDialog() == true)
+            {
+                _viewModel.CreateTicket(newRequestWindow.NewTicket);
+                MessageBox.Show("Заявка создана!");
+            }
+        }
+
+        private void StatusFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (StatusFilterComboBox.SelectedItem is ComboBoxItem selectedItem)
+            {
+                var statusText = selectedItem.Content.ToString();
+
+                _viewModel.SelectedStatus = statusText switch
                 {
-                    try
-                    {
-                        _dbContext.Tickets.Remove(selectedTicket);
-                        _dbContext.SaveChanges();
+                    "Все статусы" => null,
+                    "Новая" => TicketStatus.Новый,
+                    "В процессе" => TicketStatus.ВПроцессе,
+                    "В ожидании" => TicketStatus.ВОжидании,
+                    "Завершена" => TicketStatus.Завершён,
+                    "Отменена" => TicketStatus.Отменён,
+                    _ => null
+                };
 
-                        Tickets.Remove(selectedTicket);
-                        FilteredTickets.Remove(selectedTicket);
+                _viewModel.ApplyFilter();
+            }
+        }
 
-                        MessageBox.Show("Заявка успешно удалена.", "Удаление", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка при удалении заявки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-            }
-            else
-            {
-                MessageBox.Show("Пожалуйста, выберите заявку для удаления.", "Удаление", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _viewModel.SearchText = SearchTextBox.Text;
+            _viewModel.ApplyFilter();
         }
 
         private void EditRequest_Click(object sender, RoutedEventArgs e)
         {
             if (RequestsListView.SelectedItem is Ticket selectedTicket)
             {
-                var editWindow = new NewRequestWindow(_dbContext, selectedTicket)
+                var editWindow = new NewRequestWindow(_viewModel.DbContext, selectedTicket)
                 {
                     Owner = Window.GetWindow(this)
                 };
 
                 if (editWindow.ShowDialog() == true)
                 {
-                    RefreshFilter();
+                    _viewModel.LoadTicketsFromDb();
                     MessageBox.Show($"Заявка '{selectedTicket.Title}' успешно обновлена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
@@ -99,65 +89,26 @@ namespace CrmSystem.Views
             }
         }
 
-        private void LoadTicketsFromDb()
+        private void DeleteRequest_Click(object sender, RoutedEventArgs e)
         {
-            Tickets.Clear();
-            var ticketsFromDb = _dbContext.Tickets.ToList();
-
-            foreach (var ticket in ticketsFromDb)
+            if (RequestsListView.SelectedItem is Ticket selectedTicket)
             {
-                Tickets.Add(ticket);
+                var result = MessageBox.Show($"Вы действительно хотите удалить заявку '{selectedTicket.Title}'?", "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (_viewModel.DeleteTicket(selectedTicket))
+                    {
+                        MessageBox.Show("Заявка успешно удалена.", "Удаление", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Ошибка при удалении заявки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
             }
-
-            RefreshFilter();
-        }
-
-        private void CreateRequest_Click(object sender, RoutedEventArgs e)
-        {
-            var newRequestWindow = new NewRequestWindow(_dbContext)
+            else
             {
-                Owner = Window.GetWindow(this)
-            };
-
-            if (newRequestWindow.ShowDialog() == true)
-            {
-                var newTicket = newRequestWindow.NewTicket;
-                Tickets.Add(newTicket);
-                RefreshFilter();
-
-                MessageBox.Show($"Заявка '{newTicket.Title}' успешно создана!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
-        private void StatusFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            RefreshFilter();
-        }
-
-        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            RefreshFilter();
-        }
-
-        private void RefreshFilter()
-        {
-            if (Tickets == null) return;
-
-            string searchText = SearchTextBox.Text?.Trim().ToLower() ?? string.Empty;
-            string selectedStatus = (StatusFilterComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Все статусы";
-
-            _statusMap.TryGetValue(selectedStatus, out TicketStatus? filterStatus);
-
-            var filtered = Tickets.Where(t =>
-                (filterStatus == null || t.Status == filterStatus) &&
-                (string.IsNullOrEmpty(searchText) ||
-                 (t.Title?.ToLower().Contains(searchText) == true || t.Description?.ToLower().Contains(searchText) == true))
-            ).OrderByDescending(t => t.CreatedAt).ToList();
-
-            FilteredTickets.Clear();
-            foreach (var ticket in filtered)
-            {
-                FilteredTickets.Add(ticket);
+                MessageBox.Show("Пожалуйста, выберите заявку для удаления.", "Удаление", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
     }
