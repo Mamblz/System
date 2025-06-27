@@ -44,7 +44,7 @@ namespace CrmSystem.Views
                 {
                     AvatarImage.Source = new BitmapImage(new Uri(_currentUser.AvatarPath));
                 }
-                catch { /* Можно залогировать ошибку */ }
+                catch {}
             }
 
             RegisteredAtTextBlock.Text = _currentUser.RegisteredAt == DateTime.MinValue

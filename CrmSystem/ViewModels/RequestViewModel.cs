@@ -40,12 +40,14 @@ namespace CrmSystem.ViewModels
             if (ticket == null)
                 throw new ArgumentNullException(nameof(ticket));
 
+            ticket.Id = 0;
             _dbContext.Tickets.Add(ticket);
             _dbContext.SaveChanges();
 
             Tickets.Add(ticket);
             ApplyFilter();
         }
+
 
         public bool DeleteTicket(Ticket ticket)
         {

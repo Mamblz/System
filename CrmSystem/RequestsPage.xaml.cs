@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using CrmSystem.Data;
 using CrmSystem.ViewModels;
@@ -9,6 +10,8 @@ namespace CrmSystem.Views
     public partial class RequestsPage : UserControl
     {
         private readonly RequestsPageViewModel _viewModel;
+        private bool _isInitialized;
+
         public event Action HomeRequested;
 
         public RequestsPage(ApplicationDbContext dbContext)
@@ -20,6 +23,8 @@ namespace CrmSystem.Views
 
             RequestsListView.ItemsSource = _viewModel.FilteredTickets;
             _viewModel.LoadTicketsFromDb();
+
+            _isInitialized = true;
         }
 
         private void MainPage_Click(object sender, RoutedEventArgs e)
@@ -43,7 +48,12 @@ namespace CrmSystem.Views
 
         private void StatusFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (StatusFilterComboBox.SelectedItem is ComboBoxItem selectedItem)
+            if (!_isInitialized) return;
+            if (_viewModel == null) return;
+            if (StatusFilterComboBox == null || StatusFilterComboBox.SelectedItem == null)
+                return;
+
+            if (StatusFilterComboBox.SelectedItem is ComboBoxItem selectedItem && selectedItem.Content != null)
             {
                 var statusText = selectedItem.Content.ToString();
 
@@ -64,6 +74,9 @@ namespace CrmSystem.Views
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (!_isInitialized) return;
+            if (_viewModel == null) return;
+
             _viewModel.SearchText = SearchTextBox.Text;
             _viewModel.ApplyFilter();
         }

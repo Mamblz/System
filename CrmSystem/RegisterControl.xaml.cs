@@ -38,7 +38,6 @@ namespace CrmSystem.Views
 
         private void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
-            // поля уже сгенерированы через x:Name в XAML, не нужно их объявлять вручную
             _viewModel.Username = UsernameTextBox.Text.Trim();
             _viewModel.Email = EmailTextBox.Text.Trim();
             _viewModel.Password = PasswordBox.Password;
