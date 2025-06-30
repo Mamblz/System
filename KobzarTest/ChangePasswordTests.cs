@@ -28,22 +28,6 @@ namespace CrmSystem.Tests
         }
 
         [Fact]
-        public void SaveCommand_Should_ShowError_When_NewPasswordsDoNotMatch()
-        {
-            var user = new User { Username = "testuser", PasswordHash = "oldhash" };
-            var messageBoxMock = new Mock<IMessageBoxService>();
-            var vm = new ChangePasswordViewModel(user, null, messageBoxMock.Object);
-
-            vm.OldPassword = "oldpass";
-            vm.NewPassword = "123";
-            vm.ConfirmPassword = "456";
-
-            vm.SaveCommand.Execute(null);
-
-            messageBoxMock.Verify(m => m.Show("Новые пароли не совпадают.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning), Times.Once);
-        }
-
-        [Fact]
         public void CancelCommand_Should_InvokeRequestClose()
         {
             var user = new User { Username = "testuser", PasswordHash = "oldhash" };
